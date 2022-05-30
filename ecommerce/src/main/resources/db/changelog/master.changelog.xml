@@ -1,0 +1,583 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+	xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+	<changeSet id="creation-database" author="gustavo.silva">
+		<comment>Criação da base de dados</comment>
+
+		<createTable tableName="product">
+			<column name="id" type="int" autoIncrement="true">
+				<constraints primaryKey="true" />
+			</column>
+			<column name="code" type="int">
+				<constraints unique="true" />
+			</column>
+			<column name="name" type="varchar(100)" />
+			<column name="price" type="bigint" />
+			<column name="description" type="varchar(100)" />
+			<column name="size" type="varchar(10)" />
+		</createTable>
+
+		<createTable tableName="stock">
+			<column name="id" type="int" autoIncrement="true">
+				<constraints primaryKey="true" />
+			</column>
+			<column name="quantity" type="int" />
+			<column name="product" type="int" />
+		</createTable>
+
+		<createTable tableName="customer">
+			<column name="id" type="int" autoIncrement="true">
+				<constraints primaryKey="true" />
+			</column>
+			<column name="email" type="varchar(150)" />
+			<column name="name" type="varchar(120)" />
+			<column name="password" type="varchar(255)" />
+			<column name="status" type="varchar(10)" />
+		</createTable>
+
+		<createTable tableName="session">
+			<column name="id" type="int" autoIncrement="true">
+				<constraints primaryKey="true" />
+			</column>
+			<column name="login_date" type="datetime" />
+			<column name="customer" type="int" />
+		</createTable>
+
+		<createTable tableName="cart">
+			<column name="id" type="int" autoIncrement="true">
+				<constraints primaryKey="true" />
+			</column>
+			<column name="total_value" type="bigint" />
+			<column name="customer" type="int" />
+			<column name="status" type="varchar(25)" />
+		</createTable>
+
+		<createTable tableName="cart_item">
+			<column name="id" type="int" autoIncrement="true">
+				<constraints primaryKey="true" />
+			</column>
+			<column name="product" type="int" />
+			<column name="quantity" type="int" />
+			<column name="cart" type="int" />
+		</createTable>
+
+		<addForeignKeyConstraint
+			baseColumnNames="product" baseTableName="stock"
+			constraintName="fk_stock_product" referencedColumnNames="id"
+			referencedTableName="product" />
+
+		<addForeignKeyConstraint
+			baseColumnNames="product" baseTableName="cart_item"
+			constraintName="fk_cart_item_product" referencedColumnNames="id"
+			referencedTableName="product" />
+
+		<addForeignKeyConstraint
+			baseColumnNames="cart" baseTableName="cart_item"
+			constraintName="fk_cart_item_cart" referencedColumnNames="id"
+			referencedTableName="cart" />
+
+		<addForeignKeyConstraint
+			baseColumnNames="customer" baseTableName="cart"
+			constraintName="fk_cart_customer" referencedColumnNames="id"
+			referencedTableName="customer" />
+
+		<addForeignKeyConstraint
+			baseColumnNames="customer" baseTableName="session"
+			constraintName="fk_session_customer" referencedColumnNames="id"
+			referencedTableName="customer" />
+	</changeSet>
+
+	<!-- <changeSet id="unique condition index email and status" author="gustavo.silva"> 
+		<comment>Criação de unique condicional de email e status</comment> <sql dbms="mysql"> 
+		CREATE UNIQUE INDEX cart_active ON cart (customer, status, inactive); </sql> 
+		<sql dbms="test"> CREATE UNIQUE INDEX customer_email ON customer (email, 
+		inactive); </sql> </changeSet> -->
+
+	<changeSet id="insert tests - 1" author="gustavo.silva"
+		context="test">
+		<comment>Inserções primeira iteração</comment>
+
+		<insert tableName="product">
+			<column name="id" />
+			<column name="code" value="001" />
+			<column name="name" value="Conjunto Lingerie Premium - Vermelha" />
+			<column name="price" value="36" />
+			<column name="description" value="Conjunto Lingirie Vermelha" />
+			<column name="size" value="GG" />
+					</insert>
+
+		<insert tableName="product">
+			<column name="id" />
+			<column name="code" value="002" />
+			<column name="name" value="Conjunto Lingerie Renda - Preto" />
+			<column name="price" value="49" />
+			<column name="description" value="Conjunto de lingerie renda preto" />
+			<column name="size" value="P" />
+					</insert>
+
+		<insert tableName="stock">
+			<column name="id" />
+			<column name="quantity" value="20" />
+			<column name="product"
+				valueComputed="(select id from product where code = '001')" />
+		</insert>
+
+		<insert tableName="stock">
+			<column name="id" />
+			<column name="quantity" value="20" />
+			<column name="product"
+				valueComputed="(select id from product where code = '002')" />
+		</insert>
+		
+		<insert tableName="stock">
+			<column name="id" />
+			<column name="quantity" value="20" />
+			<column name="product"
+				valueComputed="(select id from product where code = '001')" />
+		</insert>
+
+		<insert tableName="product">
+			<column name="id" />
+			<column name="code" value="5658" />
+			<column name="name" value="Conjunto Lingerie Renda - Azul" />
+			<column name="price" value="36" />
+			<column name="description" value="Conjunto de Renda Azul" />
+			<column name="size" value="M" />
+			
+		</insert>
+
+		<insert tableName="product">
+			<column name="id" />
+			<column name="code" value="44556" />
+			<column name="name" value="Cropped de Renda - Preto" />
+			<column name="price" value="80" />
+			<column name="description" value="Cropped de renda preto" />
+			<column name="size" value="GG" />
+			
+		</insert>
+
+		<insert tableName="product">
+			<column name="id" />
+			<column name="code" value="555664" />
+			<column name="name" value="Cropped de renda Vermelho" />
+			<column name="price" value="80" />
+			<column name="description" value="Cropped de renda vermelho" />
+			<column name="size" value="GG" />
+			
+		</insert>
+
+		<insert tableName="stock">
+			<column name="id" />
+			<column name="quantity" value="1" />
+			<column name="product" 
+				valueComputed="(select id from product where code = '5658')" />
+		</insert>
+
+		<insert tableName="stock">
+			<column name="id" />
+			<column name="quantity" value="1" />
+			<column name="product"
+				valueComputed="(select id from product where code = '44556')" />
+		</insert>
+		
+		<insert tableName="stock">
+			<column name="id" />
+			<column name="quantity" value="1" />
+			<column name="product"
+				valueComputed="(select id from product where code = '555664')" />
+		</insert>
+
+	</changeSet>
+
+	<changeSet id="insert tests - 2 (Customer)"
+		author="gustavo.silva">
+		<comment>Inserção para testes integrados de customer</comment>
+
+		<insert tableName="customer">
+			<column name="id" />
+			<column name="email" value="gustavo@santocodigo.com.br" />
+			<column name="name" value="Gustavo Silva" />
+			<column name="password"
+				value="macaco22" />
+			<column name="status" value="0" />
+		</insert>
+
+		<insert tableName="customer">
+			<column name="id" />
+			<column name="email" value="fuleco@santocodigo.com.br" />
+			<column name="name" value="Fuleco Santos" />
+			<column name="password"
+				value="girafa32" />
+			<column name="status" value="0" />
+		</insert>
+
+		<insert tableName="customer">
+			<column name="id" />
+			<column name="email" value="roberto@santocodigo.com.br" />
+			<column name="name" value="Fuleco Santos" />
+			<column name="password"
+				value="galinha13" />
+			<column name="status" value="0" />
+		</insert>
+
+		<insert tableName="customer">
+			<column name="id" />
+			<column name="email" value="juclecio@santocodigo.com.br" />
+			<column name="name" value="Fuleco Santos" />
+			<column name="password"
+				value="passaro44" />
+			<column name="status" value="0" />
+		</insert>
+
+		<insert tableName="customer">
+			<column name="id" />
+			<column name="email" value="robervaldo@santocodigo.com.br" />
+			<column name="name" value="Robervaldo Maduro" />
+			<column name="password"
+				value="cavalo88" />
+			<column name="status" value="0" />
+		</insert>
+
+		<insert tableName="customer">
+			<column name="id" />
+			<column name="email" value="errodecustomer@customer.com.br" />
+			<column name="name" value="Fulequinho Santos" />
+			<column name="password"
+				value="elefante33" />
+			<column name="status" value="0" />
+		</insert>
+
+		<insert tableName="customer">
+			<column name="id" />
+			<column name="email" value="cartnotfound@customer.com.br" />
+			<column name="name" value="Fuleco de Sá Santos" />
+			<column name="password"
+				value="leao77" />
+			<column name="status" value="0" />
+		</insert>
+
+		<insert tableName="customer">
+			<column name="id" />
+			<column name="email" value="cartitem@santocodigo.com.br" />
+			<column name="name" value="Fuleco Santos" />
+			<column name="password"
+				value="tigre11" />
+			<column name="status" value="0" />
+		</insert>
+
+		<insert tableName="customer">
+			<column name="id" />
+			<column name="email" value="finished@santocodigo.com.br" />
+			<column name="name" value="Fuleco Santos" />
+			<column name="password"
+				value="peixe00" />
+			<column name="status" value="0" />
+		</insert>
+
+		<insert tableName="customer">
+			<column name="id" />
+			<column name="email" value="session@santocodigo.com.br" />
+			<column name="name" value="ÀLEXJKMS Santos" />
+			<column name="password"
+				value="cachorro55" />
+			<column name="status" value="0" />
+		</insert>
+
+		<insert tableName="customer">
+			<column name="id" />
+			<column name="email" value="inactivate@santocodigo.com.br" />
+			<column name="name" value="sdfghweret Santos" />
+			<column name="password"
+				value="papagaio47" />
+			<column name="status" value="0" />
+		</insert>
+
+		<insert tableName="customer">
+			<column name="id" />
+			<column name="email" value="inactivate@customer.com.br" />
+			<column name="name" value="Inactive da Silva" />
+			<column name="password"
+				value="tubarao09" />
+			<column name="status" value="1" />
+		</insert>
+
+		<insert tableName="customer">
+			<column name="id" />
+			<column name="email" value="inactivate@customer.com.br" />
+			<column name="name" value="Inactive Customer from Active" />
+			<column name="password"
+				value="orca08" />
+			<column name="status" value="0" />
+		</insert>
+
+		<insert tableName="customer">
+			<column name="id" />
+			<column name="email" value="cartitem@customer.com.br" />
+			<column name="name" value="josecleyton" />
+			<column name="password"
+				value="cobra55" />
+			<column name="status" value="0" />
+		</insert>
+
+		<insert tableName="customer">
+			<column name="id" />
+			<column name="email" value="cartitemstream@customer.com.br" />
+			<column name="name" value="josecleystream" />
+			<column name="password"
+				value="aranha88" />
+			<column name="status" value="0" />
+		</insert>
+	</changeSet>
+
+
+	<changeSet id="insert tests - 3 (Session)"
+		author="gustavo.silva">
+		<comment>Inserção para testes integrados de session</comment>
+
+		<insert tableName="session">
+			<column name="id" />
+			<column name="login_date" value="now()" />
+			<column name="customer"
+				valueComputed="(select id from customer where email = 'gustavo@sntocodigo.com.br')" />
+		</insert>
+
+		<insert tableName="session">
+			<column name="id" />
+			<column name="login_date" value="now()" />
+			<column name="customer"
+				valueComputed="(select id from customer where email = 'fuleco@santocodigo.com.br')" />
+		</insert>
+
+		<insert tableName="session">
+			<column name="id" />
+			<column name="login_date" value="now()" />
+			<column name="customer"
+				valueComputed="(select id from customer where email = 'roberto@santocodigo.com.br')" />
+		</insert>
+
+		<insert tableName="session">
+			<column name="id" />
+			<column name="login_date" value="now()" />
+			<column name="customer"
+				valueComputed="(select id from customer where email = 'juclecio@santocodigo.com.br')" />
+		</insert>
+
+		<insert tableName="session">
+			<column name="id" />
+			<column name="login_date" value="now()" />
+			<column name="customer"
+				valueComputed="(select id from customer where email = 'robervaldo@santocodigo.com.br')" />
+		</insert>
+
+		<insert tableName="session">
+			<column name="id" />
+			<column name="login_date" value="now()" />
+			<column name="customer"
+				valueComputed="(select id from customer where email = 'errodecustomer@customer.com.br')" />
+		</insert>
+
+		<insert tableName="session">
+			<column name="id" />
+
+			<column name="login_date" value="now()" />
+			<column name="customer"
+				valueComputed="(select id from customer where email = 'cartnotfound@customer.com.br')" />
+		</insert>
+
+		<insert tableName="session">
+			<column name="id" />
+			<column name="login_date" value="now()" />
+			<column name="customer"
+				valueComputed="(select id from customer where email = 'cartitem@santocodigo.com.br')" />
+		</insert>
+
+		<insert tableName="session">
+			<column name="id" />
+			<column name="login_date" value="now()" />
+			<column name="customer"
+				valueComputed="(select id from customer where email = 'finished@santocodigo.com.br')" />
+		</insert>
+
+		<insert tableName="session">
+			<column name="id" />
+			<column name="login_date" value="now()" />
+			<column name="customer"
+				valueComputed="(select id from customer where email = 'inactivate@santocodigo.com.br')" />
+		</insert>
+
+		<insert tableName="session">
+			<column name="id" />
+			<column name="login_date" value="now()" />
+			<column name="customer"
+				valueComputed="(select id from customer where name = 'Inactive da Silva')" />
+		</insert>
+
+		<insert tableName="session">
+			<column name="id" />
+			<column name="login_date" value="now()" />
+			<column name="customer"
+				valueComputed="(select id from customer where name = 'Inactive Customer from Active')" />
+		</insert>
+
+		<insert tableName="session">
+			<column name="id" />
+			<column name="login_date" value="now()" />
+			<column name="customer"
+				valueComputed="(select id from customer where email = 'cartitem@customer.com.br')" />
+		</insert>
+
+		<insert tableName="session">
+			<column name="id" />
+			<column name="login_date" value="now()" />
+			<column name="customer"
+				valueComputed="(select id from customer where email = 'cartitemstream@customer.com.br')" />
+		</insert>
+
+	</changeSet>
+
+	<changeSet id="insert tests - 4 (Cart)"
+		author="gustavo.silva" context="test">
+		<comment>Inserção para testes integrados de Cart</comment>
+
+		<insert tableName="cart">
+			<column name="total_value" value="1500000" />
+			<column name="customer"
+				valueComputed="(select id from customer where email = 'gustavo@santocodigo.com.br')" />
+			<column name="status" value="FINISHED" />
+		</insert>
+
+		<insert tableName="cart_item">
+			<column name="product" value="1" />
+			<column name="quantity" value="1" />
+			<column name="cart" valueComputed="SELECT MAX(id) FROM cart" />
+		</insert>
+
+		<insert tableName="cart_item">
+			<column name="product" value="2" />
+			<column name="quantity" value="1" />
+			<column name="cart" valueComputed="SELECT MAX(id) FROM cart" />
+		</insert>
+
+		<insert tableName="cart">
+			<column name="total_value" value="1500000" />
+			<column name="customer"
+				valueComputed="(select id from customer where email = 'fuleco@santocodigo.com.br')" />
+			<column name="status" value="ACTIVE" />
+		</insert>
+
+		<insert tableName="cart_item">
+			<column name="product" value="1" />
+			<column name="quantity" value="1" />
+			<column name="cart" valueComputed="SELECT MAX(id) FROM cart" />
+		</insert>
+
+		<insert tableName="cart_item">
+			<column name="product" value="2" />
+			<column name="quantity" value="1" />
+			<column name="cart" valueComputed="SELECT MAX(id) FROM cart" />
+		</insert>
+
+		<insert tableName="cart_item">
+			<column name="product" value="2" />
+			<column name="quantity" value="1" />
+			<column name="cart" valueComputed="SELECT MAX(id) FROM cart" />
+		</insert>
+
+		<insert tableName="cart">
+			<column name="total_value" value="1500000" />
+			<column name="customer"
+				valueComputed="(select id from customer where email = 'gustavo@santocodigo.com.br')" />
+			<column name="status" value="ACTIVE" />
+		</insert>
+
+		<insert tableName="cart_item">
+			<column name="product" value="1" />
+			<column name="quantity" value="1" />
+			<column name="cart" valueComputed="SELECT MAX(id) FROM cart" />
+		</insert>
+
+		<insert tableName="cart">
+			<column name="total_value" value="500000000" />
+			<column name="customer"
+				valueComputed="(select id from customer where email = 'roberto@santocodigo.com.br')" />
+			<column name="status" value="ACTIVE" />
+		</insert>
+
+		<insert tableName="cart_item">
+			<column name="product" value="1" />
+			<column name="quantity" value="1" />
+			<column name="cart" valueComputed="SELECT MAX(id) FROM cart" />
+		</insert>
+
+		<insert tableName="cart_item">
+			<column name="product" value="2" />
+			<column name="quantity" value="1" />
+			<column name="cart" valueComputed="SELECT MAX(id) FROM cart" />
+		</insert>
+
+		<insert tableName="cart">
+			<column name="total_value" value="500000" />
+			<column name="customer"
+				valueComputed="(select id from customer where email = 'juclecio@santocodigo.com.br')" />
+			<column name="status" value="ACTIVE" />
+		</insert>
+
+		<insert tableName="cart_item">
+			<column name="product" value="1" />
+			<column name="quantity" value="1" />
+			<column name="cart" valueComputed="SELECT MAX(id) FROM cart" />
+		</insert>
+
+		<insert tableName="cart_item">
+			<column name="product" value="2" />
+			<column name="quantity" value="1" />
+			<column name="cart" valueComputed="SELECT MAX(id) FROM cart" />
+		</insert>
+
+		<insert tableName="cart">
+			<column name="total_value" value="500000" />
+			<column name="customer"
+				valueComputed="(select id from customer where email = 'cartitem@santocodigo.com.br')" />
+			<column name="status" value="ACTIVE" />
+		</insert>
+
+		<insert tableName="cart_item">
+			<column name="product" value="1" />
+			<column name="quantity" value="1" />
+			<column name="cart" valueComputed="SELECT MAX(id) FROM cart" />
+		</insert>
+
+		<insert tableName="cart">
+			<column name="total_value" value="500000000" />
+			<column name="customer"
+				valueComputed="(select id from customer where email = 'finished@santocodigo.com.br')" />
+			<column name="status" value="FINISHED" />
+		</insert>
+
+		<insert tableName="cart">
+			<column name="total_value" value="500000000" />
+			<column name="customer"
+				valueComputed="(select id from customer where email = 'cartitem@customer.com.br')" />
+			<column name="status" value="ACTIVE" />
+		</insert>
+
+		<insert tableName="cart">
+			<column name="total_value" value="1000" />
+			<column name="customer"
+				valueComputed="(select id from customer where email = 'cartitemstream@customer.com.br')" />
+			<column name="status" value="ACTIVE" />
+		</insert>
+
+		<insert tableName="cart_item">
+			<column name="product" value="1" />
+			<column name="quantity" value="1" />
+			<column name="cart" valueComputed="SELECT MAX(id) FROM cart" />
+		</insert>
+
+	</changeSet>
+
+
+</databaseChangeLog>
